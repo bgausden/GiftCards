@@ -1,6 +1,5 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import csv from 'csv-parser';
 import axios, { AxiosError } from 'axios';
 import dotenv from 'dotenv';
@@ -21,8 +20,7 @@ interface GiftCard {
 }
 
 // Get the current directory name
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = new URL('.', import.meta.url).pathname;
 
 const csvFilePath = path.resolve(__dirname,'..', 'giftcards.csv');
 const giftCards: GiftCard[] = [];
