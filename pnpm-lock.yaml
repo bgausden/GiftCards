@@ -14,6 +14,9 @@ importers:
       csv-parser:
         specifier: ^3.0.0
         version: 3.0.0
+      csv-writer:
+        specifier: ^1.6.0
+        version: 1.6.0
       dotenv:
         specifier: ^16.4.5
         version: 16.4.5
@@ -192,6 +195,9 @@ packages:
     engines: {node: '>= 10'}
     hasBin: true
 
+  csv-writer@1.6.0:
+    resolution: {integrity: sha512-NOx7YDFWEsM/fTRAJjRpPp8t+MKRVvniAg9wQlUKx20MFrPs73WLJhFf5iteqrxNYnsy924K3Iroh3yNHeYd2g==}
+
   delayed-stream@1.0.0:
     resolution: {integrity: sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==}
     engines: {node: '>=0.4.0'}
@@ -351,6 +357,8 @@ snapshots:
   csv-parser@3.0.0:
     dependencies:
       minimist: 1.2.8
+
+  csv-writer@1.6.0: {}
 
   delayed-stream@1.0.0: {}
 
