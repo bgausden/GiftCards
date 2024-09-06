@@ -2,9 +2,10 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import csv from 'csv-parser';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import dotenv from 'dotenv';
 import { createObjectCsvWriter } from 'csv-writer';
+import ExcelJS from 'exceljs';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -23,8 +24,8 @@ interface GiftCard {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const csvFilePath = path.resolve(__dirname, 'giftcards.csv');
-const results: GiftCard[] = [];
+const csvFilePath = path.resolve(__dirname,'..', 'giftcards.csv');
+const giftCards: GiftCard[] = [];
 
 async function getUserToken(): Promise<string> {
   try {
@@ -54,7 +55,7 @@ async function fetchGiftCardBalances(token: string) {
   fs.createReadStream(csvFilePath)
     .pipe(csv())
     .on('data', (data) =>
-      results.push({
+      giftCards.push({
         saleDate: data['Sale Date'],
         saleId: parseInt(data['Sale ID']),
         client: data['Client'],
@@ -64,7 +65,7 @@ async function fetchGiftCardBalances(token: string) {
       })
     )
     .on('end', async () => {
-      for (const giftCard of results) {
+      for (const giftCard of giftCards) {
         try {
           const response = await axios.get(
             'https://api.mindbodyonline.com/public/v6/sale/giftcardbalance',
@@ -88,33 +89,142 @@ async function fetchGiftCardBalances(token: string) {
         } catch (error) {
           console.error(
             `Error fetching balance for Gift Card ID ${giftCard.giftCardId}:`,
-            error
+            error instanceof AxiosError ? error.response?.data : error
           );
         }
       }
-      await writeBalancesToCsv(results);
+      await writeCardsWithBalancesToCsv(giftCards);
+      await writeCardsWithBalancesToExcel(giftCards);
     });
 }
 
-async function writeBalancesToCsv(giftCards: GiftCard[]) {
+async function writeCardsWithBalancesToCsv(giftCards: GiftCard[]) {
   const csvWriter = createObjectCsvWriter({
-    path: path.resolve(__dirname, 'giftcard_balances.csv'),
+    path: path.resolve(__dirname, '..', 'giftcard_balances.csv'),
     header: [
+      { id: 'saleDate', title: 'Sale Date' },
+      { id: 'saleId', title: 'Sale ID' },
+      { id: 'client', title: 'Client' },
+      { id: 'location', title: 'Location' },
       { id: 'giftCardId', title: 'Gift Card ID' },
-      { id: 'balance', title: 'Balance' },
+      { id: 'amount', title: 'Original Amount' },
+      { id: 'balance', title: 'Current Balance' },
     ],
   });
 
   try {
-    await csvWriter.writeRecords(
-      giftCards.map((giftCard) => ({
-        giftCardId: giftCard.giftCardId,
-        balance: giftCard.balance,
-      }))
+    const giftCardsWithPositiveBalance = giftCards.filter(giftCard => 
+      giftCard.balance !== undefined && giftCard.balance > 0
     );
-    console.log('Gift card balances have been written to giftcard_balances.csv');
+
+    await csvWriter.writeRecords(giftCardsWithPositiveBalance);
+    console.log('Gift cards with positive balance have been written to giftcard_balances.csv in the workspace directory');
   } catch (error) {
-    console.error('Error writing balances to CSV:', error);
+    console.error('Error writing to CSV:', error);
+  }
+}
+
+async function writeCardsWithBalancesToExcel(giftCards: GiftCard[]) {
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('Gift Card Balances');
+
+  worksheet.columns = [
+    { header: 'Sale Date', key: 'saleDate', width: 15 },
+    { header: 'Sale ID', key: 'saleId', width: 10 },
+    { header: 'Client', key: 'client', width: 20 },
+    { header: 'Location', key: 'location', width: 15 },
+    { header: 'Gift Card ID', key: 'giftCardId', width: 20 },
+    { header: 'Original Amount', key: 'amount', width: 15 },
+    { header: 'Current Balance', key: 'balance', width: 15 },
+  ];
+
+  const giftCardsWithPositiveBalance = giftCards.filter(giftCard => 
+    giftCard.balance !== undefined && giftCard.balance > 0
+  );
+
+  worksheet.addRows(giftCardsWithPositiveBalance);
+
+  try {
+    await workbook.xlsx.writeFile(path.resolve(__dirname, '..', 'giftcard_balances.xlsx'));
+    console.log('Gift cards with positive balance have been written to giftcard_balances.xlsx in the workspace directory');
+  } catch (error) {
+    console.error('Error writing to Excel:', error);
+  }
+}
+
+async function purchaseAccountCreditFromCsv(csvFilePath: string): Promise<void>;
+async function purchaseAccountCreditFromCsv(giftCards: Partial<GiftCard>[]): Promise<void>;
+async function purchaseAccountCreditFromCsv(input: string | Partial<GiftCard>[]): Promise<void> {
+  let giftCards: Partial<GiftCard>[];
+
+  if (typeof input === 'string') {
+    giftCards = await readGiftCardsFromCsv(input);
+  } else {
+    giftCards = input;
+  }
+
+  if (giftCards.length === 0) {
+    console.log('No gift cards found.');
+    return;
+  }
+
+  for (const giftCard of giftCards) {
+    await purchaseAccountCredit(giftCard);
+  }
+}
+
+async function readGiftCardsFromCsv(csvFilePath: string): Promise<Partial<GiftCard>[]> {
+  const giftCards: Partial<GiftCard>[] = [];
+
+  await new Promise((resolve) => {
+    fs.createReadStream(csvFilePath)
+      .pipe(csv())
+      .on('data', (row) => {
+        giftCards.push({
+          giftCardId: row['Gift Card ID'],
+          balance: parseFloat(row['Balance'])
+        });
+      })
+      .on('end', resolve);
+  });
+
+  return giftCards;
+}
+
+async function purchaseAccountCredit(giftCard: Partial<GiftCard>): Promise<void> {
+  const payload = {
+    ClientId: process.env.CLIENT_ID,
+    ProgramId: process.env.PROGRAM_ID,
+    Amount: giftCard.balance,
+    PaymentInfo: {
+      Type: 'GiftCard',
+      MetaData: {
+        GiftCardId: giftCard.giftCardId
+      }
+    }
+  };
+
+  try {
+    const response = await axios.post(
+      'https://api.mindbodyonline.com/public/v6/sale/purchaseaccountcredit',
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Api-Key': process.env.API_KEY,
+          'SiteId': process.env.SITE_ID,
+          'Authorization': `Bearer ${process.env.ACCESS_TOKEN}`
+        }
+      }
+    );
+
+    console.log(`Account credit purchased successfully for Gift Card ID ${giftCard.giftCardId}:`, response.data);
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      console.error(`Error purchasing account credit for Gift Card ID ${giftCard.giftCardId}:`, error.response?.data || error.message);
+    } else {
+      console.error(`Error purchasing account credit for Gift Card ID ${giftCard.giftCardId}:`, error);
+    }
   }
 }
 
