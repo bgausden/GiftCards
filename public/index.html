@@ -4,19 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>.env Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
 </head>
-<body class="bg-background text-foreground">
-    <div class="container mx-auto p-4">
-        <h1 class="text-2xl font-bold mb-4">.env Manager</h1>
+<body>
+    <div class="container">
+        <h1 class="title">.env Manager</h1>
         <div id="env-list" hx-get="/env" hx-trigger="load">
             <!-- Env list will be loaded here as a table -->
         </div>
-        <form hx-post="/env" hx-target="#env-list" class="mt-4">
-            <input type="text" name="key" placeholder="Key" class="input input-bordered w-full max-w-xs mr-2">
-            <input type="text" name="value" placeholder="Value" class="input input-bordered w-full max-w-xs mr-2">
-            <button type="submit" class="btn btn-primary">Add</button>
+        <form hx-post="/env" hx-target="#env-list" class="form env-form">
+            <div class="input-group">
+                <input type="text" name="key" placeholder="Key" class="input">
+                <input type="text" name="value" placeholder="Value" class="input">
+                <button type="submit" class="btn btn-primary btn-sm">Add</button>
+            </div>
         </form>
     </div>
     <script>

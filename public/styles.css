@@ -1,65 +1,97 @@
+:root {
+    --primary-color: #3f51b5;
+    --primary-variant: #303f9f;
+    --secondary-color: #4caf50;
+    --background: #fafafa;
+    --surface: #ffffff;
+    --error: #f44336;
+    --on-primary: #ffffff;
+    --on-secondary: #000000;
+    --on-background: #212121;
+    --on-surface: #212121;
+    --on-error: #ffffff;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--background);
+    color: var(--on-background);
+}
+
 .btn {
-    font-weight: bold;
+    font-weight: 500;
     padding: 0.5rem 1rem;
-    border-radius: 0.25rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: background-color 0.3s;
 }
 
 .btn-primary {
-    background-color: #3b82f6;
-    color: white;
+    background-color: var(--primary-color);
+    color: var(--on-primary);
 }
 
 .btn-primary:hover {
-    background-color: #2563eb;
+    background-color: var(--primary-variant);
 }
 
 .btn-error {
-    background-color: #ef4444;
-    color: white;
+    background-color: var(--error);
+    color: var(--on-error);
 }
 
 .btn-error:hover {
-    background-color: #dc2626;
+    background-color: var(--error);
 }
 
 .btn-secondary {
-    background-color: #6b7280;
-    color: white;
+    background-color: var(--secondary-color);
+    color: var(--on-secondary);
 }
 
 .btn-secondary:hover {
-    background-color: #4b5563;
+    background-color: var(--secondary-color);
 }
 
 .input {
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-    appearance: none;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.25rem;
-    padding: 0.5rem 0.75rem;
-    color: #374151;
-    line-height: 1.25;
+    border: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.42);
+    border-radius: 0;
+    padding: 0.5rem 0;
+    transition: border-bottom-color 0.3s;
 }
 
 .input:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+    border-bottom-color: var(--primary-color);
 }
 
 table {
-    border-collapse: collapse;
     width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
 }
 
 th, td {
-    border: 1px solid #e5e7eb;
     padding: 0.5rem;
     text-align: left;
 }
 
 th {
-    background-color: #f3f4f6;
-    font-weight: bold;
+    background-color: var(--surface);
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+th:first-child, td:first-child,
+th:nth-child(2), td:nth-child(2) {
+    width: calc(50% - 40px); /* Adjust based on the Actions column width */
+}
+
+th:last-child, td:last-child {
+    width: 80px; /* Same as the Add button width */
+    text-align: center; /* Center the content in the Actions column */
 }
 
 .btn-sm {
@@ -71,15 +103,54 @@ th {
     min-width: 50px;
     outline: none;
     padding: 0.25rem;
-    border-radius: 0.25rem;
-    transition: background-color 0.2s;
+    border-bottom: 1px solid transparent;
+    transition: border-bottom-color 0.3s;
 }
 
-[contenteditable="true"]:hover {
-    background-color: #f3f4f6;
-}
-
+[contenteditable="true"]:hover,
 [contenteditable="true"]:focus {
-    background-color: #e5e7eb;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+    border-bottom-color: var(--primary-color);
+}
+
+.env-form {
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.table-row {
+    display: flex;
+    width: 100%;
+    align-items: center;
+}
+
+.key-input,
+.value-input {
+    flex: 1;
+    margin-right: 1rem;
+}
+
+.action-btn {
+    width: 80px;
+    flex-shrink: 0;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: calc(100% - 80px); /* Subtract the width of the Add button */
+}
+
+.input-group .input {
+    flex: none; /* Remove the flex grow */
+    width: calc(50% - 0.5rem); /* Each input takes up half the space minus some margin */
+    margin-right: 1rem;
+}
+
+.input-group .input:last-of-type {
+    margin-right: 1rem;
+}
+
+.input-group .btn {
+    width: 80px; /* Adjust this value to match the width of your Actions column */
 }
