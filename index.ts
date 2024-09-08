@@ -25,7 +25,12 @@ const __dirname = new URL('.', import.meta.url).pathname
 const csvFilePath = path.resolve(__dirname, '..', 'giftcards.csv')
 const giftCards: GiftCard[] = []
 
-async function getUserToken(): Promise<string> {
+// Export the getUserToken function
+export async function getUserToken(): Promise<string> {
+  if (!process.env.USER_NAME || !process.env.USER_PASSWORD || !process.env.SITE_ID || !process.env.API_KEY) {
+    throw new Error('Missing environment variables')
+  }
+
   try {
     const response = await axios.post(
       'https://api.mindbodyonline.com/public/v6/usertoken/issue',
