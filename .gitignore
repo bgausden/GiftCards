@@ -101,7 +101,7 @@ public
 .storybook-out
 
 # VS Code directories
-.vscode/
+#.vscode/
 
 # Mac system files
 .DS_Store

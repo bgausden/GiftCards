@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import axios from 'axios'
 import * as dotenv from 'dotenv'
-import { getUserToken } from './index.js'
+import { getUserToken } from './auth.js'
 
 vi.mock('axios')
 vi.mock('dotenv')

@@ -1,0 +1,14 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["run", "test"],
+			"group": "test",
+			"problemMatcher": [],
+			"label": "pnpm: test",
+			"detail": "pnpm run build && vitest --run"
+		}
+	]
+}

@@ -5,6 +5,7 @@ import axios, { AxiosError } from 'axios'
 import dotenv from 'dotenv'
 import { createObjectCsvWriter } from 'csv-writer'
 import ExcelJS from 'exceljs'
+import { getUserToken } from './auth.js'
 
 // Load environment variables from .env file
 dotenv.config()
@@ -25,7 +26,7 @@ const __dirname = new URL('.', import.meta.url).pathname
 const csvFilePath = path.resolve(__dirname, '..', 'giftcards.csv')
 const giftCards: GiftCard[] = []
 
-// Export the getUserToken function
+/* // Export the getUserToken function
 export async function getUserToken(): Promise<string> {
   if (!process.env.USER_NAME || !process.env.USER_PASSWORD || !process.env.SITE_ID || !process.env.API_KEY) {
     throw new Error('Missing environment variables')
@@ -52,7 +53,7 @@ export async function getUserToken(): Promise<string> {
     console.error('Error fetching user token:', error)
     throw error
   }
-}
+} */
 
 async function fetchGiftCardBalances(token: string) {
   fs.createReadStream(csvFilePath)
