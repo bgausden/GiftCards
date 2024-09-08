@@ -4,8 +4,14 @@
 		{
 			"type": "shell",
 			"command": "pnpm",
-			"args": ["run", "test"],
-			"group": "test",
+			"args": [
+				"run",
+				"test"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
 			"problemMatcher": [],
 			"label": "pnpm: test",
 			"detail": "pnpm run build && vitest --run"
