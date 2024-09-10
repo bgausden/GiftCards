@@ -3,7 +3,7 @@
 	"scripts": {
 		"build": "tsc --build",
 		"test": "pnpm run build && vitest --run",
-		"dev": "nodemon --watch \"src/**/*.ts\" --exec \"tsx\" src/server/server.ts"
+		"dev": "nodemon --watch \"src/**/*.ts\" --watch \"public/**/*.html\" --watch \"public/**/*.css\" --exec \"tsx\" src/server/server.ts"
 
 	},
 	"dependencies": {
