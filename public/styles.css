@@ -8,6 +8,9 @@
     --button-bg: #f0f0f0;
     --button-shadow-light: #ffffff;
     --button-shadow-dark: #d0d0d0;
+    --input-bg: #f0f0f0;
+    --input-shadow-dark: rgba(0, 0, 0, 0.1);
+    --input-shadow-light: rgba(255, 255, 255, 0.5);
 }
 
 body {
@@ -73,15 +76,25 @@ body {
 }
 
 .input {
-    border: 1px solid var(--secondary-color);
+    border: none;
     padding: 0.75rem;
     font-size: 1rem;
-    transition: border-color 0.3s;
+    transition: all 0.3s ease;
+    background-color: var(--input-bg);
+    color: var(--text);
+    box-shadow: inset 2px 2px 5px var(--input-shadow-dark), 
+                inset -2px -2px 5px var(--input-shadow-light);
 }
 
 .input:focus {
     outline: none;
-    border-color: var(--primary-color);
+    box-shadow: inset 3px 3px 7px var(--input-shadow-dark), 
+                inset -3px -3px 7px var(--input-shadow-light);
+}
+
+.input::placeholder {
+    color: var(--text);
+    opacity: 0.6;
 }
 
 table {
@@ -108,13 +121,16 @@ th {
 
 [contenteditable="true"] {
     padding: 0.5rem;
-    border: 1px solid transparent;
-    transition: border-color 0.3s;
+    background-color: transparent;
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: none;
 }
 
 [contenteditable="true"]:hover,
 [contenteditable="true"]:focus {
-    border-color: var(--primary-color);
+    box-shadow: 0 2px 4px var(--input-shadow-dark);
+    outline: none;
 }
 
 .env-form {
@@ -124,6 +140,7 @@ th {
 .input-group {
     display: flex;
     gap: 1rem;
+    margin-top: 2rem;
 }
 
 .input-group .input {
