@@ -150,3 +150,7 @@ th {
 .input-group .btn {
     flex-shrink: 0;
 }
+
+td .btn + .btn {
+    margin-left: 0.5rem;
+}

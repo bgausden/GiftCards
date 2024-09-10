@@ -19,8 +19,12 @@ app.get('/env', (req, res) => {
 
 app.post('/env', (req, res) => {
     const { key, value } = req.body;
+    if (!key || key.trim() === '') {
+        res.status(400).send('Key cannot be empty');
+        return;
+    }
     const envData = readEnv();
-    envData[key] = value;
+    envData[key.trim()] = value;
     writeEnv(envData);
     res.send(renderEnvList(envData));
 });
@@ -61,6 +65,7 @@ function renderEnvList(envData: EnvEntry): string {
                             <span contenteditable="true" class="block w-full" data-key="${key}">${value}</span>
                         </td>
                         <td class="border p-2">
+                            <button class="btn btn-sm btn-primary edit-btn" onclick="makeEditable(this)">Edit</button>
                             <button class="btn btn-sm btn-error" hx-delete="/env/${key}" hx-target="#env-list">Delete</button>
                         </td>
                     </tr>

@@ -13,15 +13,21 @@
         <div id="env-list" hx-get="/env" hx-trigger="load">
             <!-- Env list will be loaded here as a table -->
         </div>
-        <form hx-post="/env" hx-target="#env-list" class="form env-form">
+        <form id="env-form" hx-post="/env" hx-target="#env-list" class="form env-form">
             <div class="input-group">
-                <input type="text" name="key" placeholder="Key" class="input">
+                <input type="text" name="key" placeholder="Key" class="input" required>
                 <input type="text" name="value" placeholder="Value" class="input">
                 <button type="submit" class="btn btn-primary btn-sm">Add</button>
             </div>
         </form>
     </div>
     <script>
+        function makeEditable(button) {
+            const row = button.closest('tr');
+            const valueSpan = row.querySelector('span[contenteditable]');
+            valueSpan.focus();
+        }
+
         document.body.addEventListener('keydown', function(event) {
             if (event.key === 'Enter' && event.target.hasAttribute('contenteditable')) {
                 event.preventDefault();
@@ -34,6 +40,24 @@
                     values: { value: value }
                 });
                 event.target.blur();
+            }
+        });
+
+        document.getElementById('env-form').addEventListener('htmx:afterRequest', function(event) {
+            if (event.detail.successful) {
+                const keyInput = this.querySelector('input[name="key"]');
+                const valueInput = this.querySelector('input[name="value"]');
+                keyInput.value = '';
+                valueInput.value = '';
+                keyInput.focus();
+            }
+        });
+
+        document.getElementById('env-form').addEventListener('submit', function(event) {
+            const keyInput = this.querySelector('input[name="key"]');
+            if (keyInput.value.trim() === '') {
+                event.preventDefault();
+                alert('Key cannot be empty');
             }
         });
     </script>
