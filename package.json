@@ -2,7 +2,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "tsc --build",
-		"test": "pnpm run build && vitest",
+		"test": "pnpm run build && vitest --run",
 		"dev": "nodemon --watch \"src/**/*.ts\" --exec \"tsx\" src/server/server.ts"
 
 	},
