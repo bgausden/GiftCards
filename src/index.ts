@@ -23,7 +23,9 @@ interface GiftCard {
 // Get the current directory name
 const __dirname = new URL('.', import.meta.url).pathname
 
-const csvFilePath = path.resolve(__dirname, '..', 'giftcards.csv')
+// Retrieve the CSV file name from .env
+const csvFileName = process.env.CSV_FILE_NAME || 'giftcards.csv'
+const csvFilePath = path.resolve(__dirname, '..', csvFileName)
 const giftCards: GiftCard[] = []
 
 /* // Export the getUserToken function
