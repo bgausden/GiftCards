@@ -5,6 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Launch Program",
+            "type": "node",
+            "request": "launch",
+            "runtimeExecutable": "tsx",
+            "runtimeArgs": ["${workspaceFolder}/src/index.ts"],
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
             "type": "node",
             "request": "launch",
             "name": "Launch UI",
