@@ -18,7 +18,7 @@ app.get('/env', (req, res) => {
 });
 
 app.post('/env', (req, res) => {
-    const { key, value } = req.body;
+    const { key, value } = req.body as Record<string, string>;
     if (!key || key.trim() === '') {
         res.status(400).send('Key cannot be empty');
         return;
@@ -32,6 +32,7 @@ app.post('/env', (req, res) => {
 app.delete('/env/:key', (req, res) => {
     const { key } = req.params;
     const envData = readEnv();
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete envData[key];
     writeEnv(envData);
     res.send(renderEnvList(envData));
@@ -39,8 +40,7 @@ app.delete('/env/:key', (req, res) => {
 
 app.put('/env/:key', (req, res) => {
     const { key } = req.params;
-    const { value } = req.body;
-    console.log(`Received PUT request for ${key} with value ${value}`);
+    const { value } = req.body as Record<string, string>;
     const envData = readEnv();
     envData[key] = value;
     writeEnv(envData);
@@ -49,7 +49,7 @@ app.put('/env/:key', (req, res) => {
 
 function renderEnvList(envData: EnvEntry): string {
     return `
-        <table class="w-full border-collapse" data-last-updated="${Date.now()}">
+        <table class="w-full border-collapse" data-last-updated="${Date.now().toString()}">
             <thead>
                 <tr>
                     <th class="border p-2 text-left">Key</th>

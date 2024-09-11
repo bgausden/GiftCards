@@ -24,7 +24,7 @@ interface GiftCard {
 const __dirname = new URL('.', import.meta.url).pathname
 
 // Retrieve the CSV file name from .env
-const csvFileName = process.env.CSV_FILE_NAME || 'giftcards.csv'
+const csvFileName = process.env.CSV_FILE_NAME ?? 'giftcards.csv'
 const csvFilePath = path.resolve(__dirname, '..', csvFileName)
 const giftCards: GiftCard[] = []
 
@@ -60,14 +60,14 @@ export async function getUserToken(): Promise<string> {
 async function fetchGiftCardBalances(token: string) {
   fs.createReadStream(csvFilePath)
     .pipe(csv())
-    .on('data', (data) =>
+    .on('data', (data: Record<string, string>) =>
       giftCards.push({
         saleDate: data['Sale Date'],
         saleId: parseInt(data['Sale ID']),
-        client: data['Client'],
-        location: data['Location'],
+        client: data.Client,
+        location: data.Location,
         giftCardId: data['Gift Card ID (Assigned)'],
-        amount: data['Amount'],
+        amount: data.Amount,
       })
     )
     .on('end', async () => {
@@ -87,10 +87,17 @@ async function fetchGiftCardBalances(token: string) {
               },
             }
           )
-          giftCard.balance = response.data.RemainingBalance
+          const data = response.data as {
+            "BarcodeId": string,
+            "RemainingBalance": number
+          }
+          if ('RemainingBalance' in data) {
+            giftCard.balance = data.RemainingBalance
+          } else
+            throw new Error('No remaining balance returned')
           console.log(
             `Balance for Gift Card ID ${giftCard.giftCardId}:`,
-            response.data.RemainingBalance
+            data.RemainingBalance
           )
         } catch (error) {
           console.error(
@@ -164,12 +171,12 @@ async function writeCardsWithBalancesToExcel(giftCards: GiftCard[]) {
   }
 }
 
-async function purchaseAccountCreditFromCsv(csvFilePath: string): Promise<void>
+/* async function purchaseAccountCreditFromCsv(csvFilePath: string): Promise<void>
 async function purchaseAccountCreditFromCsv(
   giftCards: Partial<GiftCard>[]
-): Promise<void>
+): Promise<void> */
 async function purchaseAccountCreditFromCsv(
-  input: string | Partial<GiftCard>[]
+  input: string | Partial<GiftCard>[], userToken: string
 ): Promise<void> {
   let giftCards: Partial<GiftCard>[]
 
@@ -185,7 +192,7 @@ async function purchaseAccountCreditFromCsv(
   }
 
   for (const giftCard of giftCards) {
-    await purchaseAccountCredit(giftCard)
+    await purchaseAccountCredit(giftCard, userToken)
   }
 }
 
@@ -197,10 +204,10 @@ async function readGiftCardsFromCsv(
   await new Promise((resolve) => {
     fs.createReadStream(csvFilePath)
       .pipe(csv())
-      .on('data', (row) => {
+      .on('data', (row: Record<string, string>) => {
         giftCards.push({
           giftCardId: row['Gift Card ID'],
-          balance: parseFloat(row['Balance']),
+          balance: parseFloat(row.Balance),
         })
       })
       .on('end', resolve)
@@ -210,7 +217,7 @@ async function readGiftCardsFromCsv(
 }
 
 async function purchaseAccountCredit(
-  giftCard: Partial<GiftCard>
+  giftCard: Partial<GiftCard>, userToken: string
 ): Promise<void> {
   const payload = {
     ClientId: process.env.CLIENT_ID,
@@ -233,7 +240,7 @@ async function purchaseAccountCredit(
           'Content-Type': 'application/json',
           'Api-Key': process.env.API_KEY,
           SiteId: process.env.SITE_ID,
-          Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
+          Authorization: `Bearer ${userToken}`,
         },
       }
     )
@@ -259,11 +266,11 @@ async function purchaseAccountCredit(
 
 async function main() {
   try {
-    const token = await getUserToken()
-    await fetchGiftCardBalances(token)
+    const userToken = await getUserToken()
+    await fetchGiftCardBalances(userToken)
   } catch (error) {
     console.error('Error in main function:', error)
   }
 }
 
-main()
+await main()

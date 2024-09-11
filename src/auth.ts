@@ -24,7 +24,10 @@ export async function getUserToken(): Promise<string> {
         },
       }
     )
-    return response.data.AccessToken
+    const data = response.data as object
+    if ('AccessToken' in data) {
+      return data.AccessToken as string
+    } else throw new Error('No access token returned')
   } catch (error) {
     console.error('Error fetching user token:', error)
     throw error
